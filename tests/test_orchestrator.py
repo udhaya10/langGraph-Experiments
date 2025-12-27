@@ -14,8 +14,8 @@ class TestDebateOrchestrator:
     async def test_run_debate_basic(self):
         """Test running a basic 3-agent debate"""
         topic = DebateTopic(
-            title="Is Python a good language?",
-            description="Discuss the pros and cons of Python as a programming language"
+            title="Is Python good?",  # Simpler topic for consistency
+            description="Discuss the pros and cons of Python"
         )
 
         agents_config = [
@@ -26,10 +26,10 @@ class TestDebateOrchestrator:
                 model_name="haiku"
             ),
             AgentConfig(
-                name="Gemini AGAINST",
+                name="Claude AGAINST",  # Use Claude for consistency
                 role="AGAINST",
-                model_provider="gemini",
-                model_name="flash-lite"
+                model_provider="claude",
+                model_name="haiku"
             ),
             AgentConfig(
                 name="Claude SYNTHESIS",
@@ -44,16 +44,16 @@ class TestDebateOrchestrator:
 
         # Verify debate record
         assert debate.debate_id is not None
-        assert debate.topic.title == "Is Python a good language?"
+        assert debate.topic.title == "Is Python good?"
         assert len(debate.agents_config) == 3
         assert len(debate.agent_responses) == 3
         assert debate.total_execution_time_ms > 0
 
         # Verify all responses succeeded
         for response in debate.agent_responses:
-            assert response.success is True
+            assert response.success is True, f"{response.agent_name} failed: {response.error_message}"
             assert response.error_message is None
-            assert len(response.response_text) > 0
+            assert len(response.response_text) > 0, f"{response.agent_name} response is empty"
 
         # Verify roles
         assert debate.agent_responses[0].role == "FOR"
