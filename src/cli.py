@@ -20,11 +20,13 @@ def cli_group():
 @cli_group.command(name='debate')
 @click.option('--topic', required=True, help='Debate topic title')
 @click.option('--description', required=True, help='Debate topic description')
+@click.option('--provider', default='claude', type=click.Choice(['claude', 'gemini', 'mixed']), help='AI provider: claude, gemini, or mixed')
 @click.option('--output', default=None, help='Output file for debate results (optional)')
-def debate_command(topic, description, output):
+def debate_command(topic, description, provider, output):
     """Run a debate on the given topic"""
     click.echo(f"\n🔄 Starting debate: {topic}")
-    click.echo(f"   Description: {description}\n")
+    click.echo(f"   Description: {description}")
+    click.echo(f"   Provider: {provider}\n")
 
     try:
         # Create topic
@@ -33,27 +35,70 @@ def debate_command(topic, description, output):
             description=description
         )
 
-        # Define agents (FOR, AGAINST, SYNTHESIS)
-        agents_config = [
-            AgentConfig(
-                name="Claude FOR",
-                role="FOR",
-                model_provider="claude",
-                model_name="haiku"
-            ),
-            AgentConfig(
-                name="Claude AGAINST",
-                role="AGAINST",
-                model_provider="claude",
-                model_name="haiku"
-            ),
-            AgentConfig(
-                name="Claude SYNTHESIS",
-                role="SYNTHESIS",
-                model_provider="claude",
-                model_name="haiku"
-            ),
-        ]
+        # Define agents based on selected provider
+        if provider == 'claude':
+            agents_config = [
+                AgentConfig(
+                    name="Claude FOR",
+                    role="FOR",
+                    model_provider="claude",
+                    model_name="haiku"
+                ),
+                AgentConfig(
+                    name="Claude AGAINST",
+                    role="AGAINST",
+                    model_provider="claude",
+                    model_name="haiku"
+                ),
+                AgentConfig(
+                    name="Claude SYNTHESIS",
+                    role="SYNTHESIS",
+                    model_provider="claude",
+                    model_name="haiku"
+                ),
+            ]
+        elif provider == 'gemini':
+            agents_config = [
+                AgentConfig(
+                    name="Gemini FOR",
+                    role="FOR",
+                    model_provider="gemini",
+                    model_name="flash"
+                ),
+                AgentConfig(
+                    name="Gemini AGAINST",
+                    role="AGAINST",
+                    model_provider="gemini",
+                    model_name="flash"
+                ),
+                AgentConfig(
+                    name="Gemini SYNTHESIS",
+                    role="SYNTHESIS",
+                    model_provider="gemini",
+                    model_name="flash"
+                ),
+            ]
+        else:  # mixed
+            agents_config = [
+                AgentConfig(
+                    name="Claude FOR",
+                    role="FOR",
+                    model_provider="claude",
+                    model_name="haiku"
+                ),
+                AgentConfig(
+                    name="Gemini AGAINST",
+                    role="AGAINST",
+                    model_provider="gemini",
+                    model_name="flash"
+                ),
+                AgentConfig(
+                    name="Claude SYNTHESIS",
+                    role="SYNTHESIS",
+                    model_provider="claude",
+                    model_name="haiku"
+                ),
+            ]
 
         # Run debate
         orchestrator = DebateOrchestrator()
