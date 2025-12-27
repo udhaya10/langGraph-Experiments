@@ -6,7 +6,6 @@ import pytest
 from src.models import DebateTopic, AgentConfig
 from src.orchestrator import DebateOrchestrator, build_for_prompt, build_against_prompt, build_synthesis_prompt
 from src.agents import ClaudeAgent
-from unittest.mock import patch, MagicMock
 import asyncio
 
 
